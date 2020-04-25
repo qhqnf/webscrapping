@@ -4,12 +4,11 @@ from bs4 import BeautifulSoup
 # %%
 
 LIMIT = 50
-URL = f"https://kr.indeed.com/jobs?q=python&limit={LIMIT}"
 
 
-def get_last_page():
+def get_last_page(url):
 
-    result = requests.get(URL)
+    result = requests.get(url)
 
     soup = BeautifulSoup(result.text, "html.parser")
 
@@ -44,11 +43,11 @@ def extract_job(html):
             'link': f"https://kr.indeed.com/viewjob?jk={job_id}"}
 
 
-def extract_jobs(last_page):
+def extract_jobs(last_page, url):
     jobs = []
     for page in range(last_page):
         print(f"Scrapping indeed: page {page}")
-        result = requests.get(f"{URL}&start={last_page*LIMIT}")
+        result = requests.get(f"{url}&start={last_page*LIMIT}")
         soup = BeautifulSoup(result.text, "html.parser")
         results = soup.find_all(
             'div', {'class': 'jobsearch-SerpJobCard'})
@@ -59,9 +58,10 @@ def extract_jobs(last_page):
 # %%
 
 
-def get_jobs():
-    last_page = get_last_page()
+def get_jobs(word):
+    url = f"https://kr.indeed.com/jobs?q={word}&limit={LIMIT}"
+    last_page = get_last_page(url)
 
-    jobs = extract_jobs(last_page)
+    jobs = extract_jobs(last_page, url)
 
     return jobs
